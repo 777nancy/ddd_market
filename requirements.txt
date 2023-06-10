@@ -1,0 +1,18 @@
+# default
+black
+isort
+mypy
+flake8
+pytest
+
+yfinance
+matplotlib
+tqdm
+PyYAML
+pendulum
+slack-sdk
+types-PyYAML
+psycopg2
+jinja2
+sqlalchemy
+types-requests

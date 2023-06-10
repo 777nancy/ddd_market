@@ -1,0 +1,11 @@
+{
+    "cSpell.words": [
+        "itertuples",
+        "macd",
+        "marketanalysis"
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
+}

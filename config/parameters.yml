@@ -1,0 +1,67 @@
+EmaCross:
+  data_period: 365
+  params:
+    - name: short-middle
+      default: true
+      short_period:
+        min: 5
+        max: 15
+      long_period:
+        min: 20
+        max: 30
+    - name: middle-long
+      default: false
+      short_period:
+        min: 45
+        max: 55
+      long_period:
+        min: 195
+        max: 205
+Macd:
+  data_period: 180
+  params:
+    - name: default
+      default: true
+      short_period:
+        min: 5
+        max: 20
+      long_period:
+        min: 20
+        max: 30
+      signal_period:
+        min: 5
+        max: 12
+Rsi:
+  data_period: 720
+  params:
+    - name: default
+      default: true
+      period:
+        min: 12
+        max: 16
+      overbought:
+        min: 68
+        max: 72
+      oversold:
+        min: 28
+        max: 32
+SlowStochastic:
+  data_period: 180
+  params:
+    - name: default
+      default: true
+      k_period:
+        min: 5
+        max: 14
+      d_period:
+        min: 3
+        max: 7
+      slow_period:
+        min: 3
+        max: 7
+      overbought:
+        min: 78
+        max: 82
+      oversold:
+        min: 18
+        max: 23

@@ -1,0 +1,13 @@
+ticker_symbols:
+  - ticker_symbol: "1458.T"
+    name: "Rakuten ETF-Nikkei 225 Leveraged Index"
+    short_name: "rakuten_225_double"
+  - ticker_symbol: "1459.T"
+    name: "Rakuten ETF-Nikkei 225 Double Inverse Index"
+    short_name: "rakuten_225_double_inverse"
+  - ticker_symbol: "^N225"
+    name: "Nikkei 225"
+    short_name: "N225"
+  - ticker_symbol: ^VIX
+    name: CBOE Volatility Index
+    short_name: vix

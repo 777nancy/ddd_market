@@ -1,0 +1,17 @@
+[indicator]
+indicator: {{ optimized_indicator_name }}
+optimal params: {{ optimized_params }}
+
+[optimized ticker]
+ticker: {{ optimized_ticker_short_name }}
+total return: {{ optimized_total_return }}
+buy: {{ optimized_should_buy }}
+sell: {{ optimized_should_sell }}
+{%- if has_target_ticker %}
+
+[target stock]
+ticker: {{ target_ticker_short_name }}
+total return: {{ target_total_return }}
+buy: {{ target_should_buy }}
+sell: {{ target_should_sell }}
+{%- endif %}
