@@ -2,13 +2,13 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from marketanalysis.domain.indicators import indicator
+from marketanalysis.domain.indicators.indicator import AbstractIndicator
 from marketanalysis.utils import array
 
 
-class Stochastic(indicator.AbstractIndicator):
+class Stochastic(AbstractIndicator):
     def __init__(self, data, k_period=14, d_period=3, overbought=80, oversold=20):
-        self.data: pd.DataFrame = data
+        self._data: pd.DataFrame = data
         self.k_period = k_period
         self.d_period = d_period
         self.overbought = overbought
@@ -30,12 +30,18 @@ class Stochastic(indicator.AbstractIndicator):
         # %Dの計算
         self.data["%D"] = self.data["%K"].rolling(window=self.d_period, min_periods=1).mean()
 
-    def signal(self):
+    def get_indexes(self):
         buying_indexes, selling_indexes = array.intersection_with_bounds(
-            self.data["%D"], self.data["%K"], self.oversold, self.oversold
+            self.data["%D"], self.data["%K"], self.overbought, self.oversold
         )
-        return self.data["date"].iloc[buying_indexes].reset_index(drop=True), self.data["date"].iloc[
-            selling_indexes
+        return buying_indexes, selling_indexes
+
+    def signal(self):
+        buying_indexes, selling_indexes = self.get_indexes()
+        buying_indexes = buying_indexes[-1:]
+        selling_indexes = selling_indexes[-1:]
+        return self.data["date"].iloc[buying_indexes + 1].reset_index(drop=True), self.data["date"].iloc[
+            selling_indexes + 1
         ].reset_index(drop=True)
 
     def get_params(self):
@@ -80,15 +86,21 @@ class SlowStochastic(Stochastic):
         self.data["slow_%K"] = self.data["%D"]
         self.data["slow_%D"] = self.data["slow_%K"].rolling(window=self.slow_period, min_periods=1).mean()
 
-    def signal(self):
+    def get_indexes(self):
         buying_indexes, selling_indexes = array.intersection_with_bounds(
             self.data["slow_%D"].reset_index(drop=True),
             self.data["slow_%K"].reset_index(drop=True),
-            self.oversold,
+            self.overbought,
             self.oversold,
         )
-        return self.data["date"].iloc[buying_indexes].reset_index(drop=True), self.data["date"].iloc[
-            selling_indexes
+        return buying_indexes, selling_indexes
+
+    def signal(self):
+        buying_indexes, selling_indexes = self.get_indexes()
+        buying_indexes = buying_indexes[:-1]
+        selling_indexes = selling_indexes[:-1]
+        return self.data["date"].iloc[buying_indexes + 1].reset_index(drop=True), self.data["date"].iloc[
+            selling_indexes + 1
         ].reset_index(drop=True)
 
     def get_params(self):

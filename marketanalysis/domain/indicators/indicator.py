@@ -6,9 +6,18 @@ import pendulum
 
 
 class AbstractIndicator(abc.ABC):
-    # data: pd.DataFrame
+    _data: pd.DataFrame
 
-    def get_params(self):
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
+
+    @abstractmethod
+    def get_params(self, data):
         raise NotImplementedError()
 
     @abstractmethod
@@ -16,39 +25,34 @@ class AbstractIndicator(abc.ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def get_indexes(self):
+        raise NotImplementedError()
+
+    @abstractmethod
     def signal(self):
         raise NotImplementedError()
 
     def should_buy_today(self):
-        latest_date = self.data["date"].iloc[-1]  # type: ignore
-        if str(latest_date) == pendulum.today(tz="Asia/Tokyo").strftime("%Y-%m-%d"):
-            add_days = 0
-        else:
-            add_days = -1
-        buy, _ = self.signal()
-        print(self.get_params())
-        if len(buy) == 0:
+        buying_indexes, _ = self.get_indexes()
+        if len(buying_indexes) == 0:
             return False
-        today_str = pendulum.today(tz="Asia/Tokyo").add(days=add_days).strftime("%Y-%m-%d")
-        if str(buy.iloc[-1]) == today_str:
-            return True
 
-        return False
+        try:
+            self.data["date"].iloc[buying_indexes + 1].reset_index(drop=True)
+            return False
+        except IndexError:
+            return True
 
     def should_sell_today(self):
-        latest_date = self.data["date"].iloc[-1]  # type: ignore
-        if str(latest_date) == pendulum.today(tz="Asia/Tokyo").strftime("%Y-%m-%d"):
-            add_days = 0
-        else:
-            add_days = -1
-        _, sell = self.signal()
-        if len(sell) == 0:
+        _, selling_indexes = self.get_indexes()
+        if len(selling_indexes) == 0:
             return False
-        today_str = pendulum.today(tz="Asia/Tokyo").add(days=add_days).strftime("%Y-%m-%d")
-        if str(sell.iloc[-1]) == today_str:
-            return True
 
-        return False
+        try:
+            self.data["date"].iloc[selling_indexes + 1].reset_index(drop=True)
+            return False
+        except IndexError:
+            return True
 
     @abstractmethod
     def draw(self, output_path=None, display_days=365):

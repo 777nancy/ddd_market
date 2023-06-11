@@ -10,11 +10,11 @@ SLACK_FILE_URL = "https://slack.com/api/files.upload"
 CHANNEL_ID = ""
 TOKEN = ""
 
-POSTGRES_USER = "root"
-POSTGRES_PASSWORD = "root"
-POSTGRES_HOST = "postgres"
-POSTGRES_PORT = "5432"
-POSTGRES_DATABASE = "market"
+# POSTGRES_USER = "root"
+# POSTGRES_PASSWORD = "root"
+# POSTGRES_HOST = "postgres"
+# POSTGRES_PORT = "5432"
+# POSTGRES_DATABASE = "market"
 
 # stop_limitのデフォルト値
 STOP_LIMIT = 0.04

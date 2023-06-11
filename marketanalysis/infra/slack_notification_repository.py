@@ -3,7 +3,7 @@ from marketanalysis.domain.repository.interface import (
 )
 from marketanalysis.domain.slack_message import SlackMessage
 from marketanalysis.platform.slack import Slack
-from marketanalysis.settings.constants import CHANNEL_ID, SLACK_FILE_URL, TOKEN
+from marketanalysis.settings import CHANNEL_ID, SLACK_FILE_URL, TOKEN
 
 
 class SlackNotificationRepository(AbstractSlackNotificationRepository):

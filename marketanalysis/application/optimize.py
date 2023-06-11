@@ -13,7 +13,7 @@ from marketanalysis.domain.trading_strategies.factory import TradingStrategyClas
 from marketanalysis.infra.slack_notification_repository import (
     SlackNotificationRepository,
 )
-from marketanalysis.settings.constants import RESOURCES_DIR
+from marketanalysis.settings import RESOURCES_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class Optimize(object):
                 **placeholder,
             }
             png_path = os.path.join(tempfile.mkdtemp(), "{target_ticker.short_name}.png")
-            optimized_indicator.draw(png_path)
+            target_simulator.indicator.draw(png_path)
             png_files.append({"title": target_ticker.short_name, "file": png_path})
 
         message = SlackMessage.from_file(os.path.join(RESOURCES_DIR, "message.txt"), placeholder)

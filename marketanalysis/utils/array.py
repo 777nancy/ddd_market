@@ -36,7 +36,6 @@ def intersection_with_bounds(a, b, upper_bound, lower_bound):
     :param lower_bound:下限
     :return:
     """
-    print(a, b)
     min_length = min(len(a), len(b))
     diff_sign_array = np.sign(a[len(a) - min_length :] - b[len(b) - min_length :])
     if not len(diff_sign_array):

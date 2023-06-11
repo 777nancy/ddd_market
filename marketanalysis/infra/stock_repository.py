@@ -2,14 +2,14 @@ import logging
 import os
 
 import pandas as pd
-import pendulum
 import yfinance
 
 from marketanalysis.domain.query import Query
 from marketanalysis.domain.repository.interface import AbstractStockRepository
 from marketanalysis.domain.ticker_symbol import TickerSymbol
 from marketanalysis.infra.interface.rdb import RDB
-from marketanalysis.settings import constants
+from marketanalysis.platform.filesystem.interface import AbstractFileSystem
+from marketanalysis.settings import PROJECT_BUCKET_NAME, RESOURCES_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class StockRepository(AbstractStockRepository):
         # if not table_exits:
         logger.info(f"table {ticker_symbol.table_name} does not exit")
         query = Query.from_file(
-            os.path.join(constants.RESOURCES_DIR, "stock_table.sql"), {"table_name": ticker_symbol.table_name}
+            os.path.join(RESOURCES_DIR, "stock_table.sql"), {"table_name": ticker_symbol.table_name}
         )
 
         self.rdb.execute(query.format(), need_fetch=False)
@@ -65,3 +65,34 @@ class StockRepository(AbstractStockRepository):
 
         rows = self.rdb.execute(query, need_fetch=True)
         return True if rows[0][0] else False
+
+
+class FileStockRepository(AbstractStockRepository):
+    def __init__(self, filesystem: AbstractFileSystem) -> None:
+        self.filesystem = filesystem
+
+    def select_to_df(self, ticker_symbol: TickerSymbol) -> pd.DataFrame:
+        file_dir = f"{PROJECT_BUCKET_NAME}/{ticker_symbol.short_name}"
+
+        return self.filesystem.read(file_dir)
+
+    def create_or_update(self, ticker_symbol: TickerSymbol):
+        file_dir = f"{PROJECT_BUCKET_NAME}/{ticker_symbol.short_name}"
+
+        stock_df = yfinance.download(ticker_symbol.ticker_symbol).reset_index()
+        if len(stock_df) == 0:
+            logger.info(f"stock price data({ticker_symbol.short_name}) is up to date")
+            return
+        stock_df = stock_df.rename(
+            columns={
+                "Date": "date",
+                "Open": "open",
+                "High": "high",
+                "Low": "low",
+                "Close": "close",
+                "Adj Close": "adj_close",
+                "Volume": "volume",
+            }
+        )
+        stock_df["yyyymmdd"] = stock_df["date"].astype(str).str.replace("-", "")
+        self.filesystem.write(stock_df, file_dir, ticker_symbol.short_name)

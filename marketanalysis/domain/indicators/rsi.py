@@ -3,13 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from marketanalysis.domain.indicators import indicator
+from marketanalysis.domain.indicators.indicator import AbstractIndicator
 from marketanalysis.utils import array
 
 
-class Rsi(indicator.AbstractIndicator):
+class Rsi(AbstractIndicator):
     def __init__(self, data, period=14, overbought=70, oversold=30):
-        self.data: pd.DataFrame = data
+        self._data: pd.DataFrame = data
         self.period = period
         self.overbought = overbought
         self.oversold = oversold
@@ -32,13 +32,21 @@ class Rsi(indicator.AbstractIndicator):
         # RSIを計算する
         self.data["rsi"] = np.where(avg_loss == 0, 100, 100 - (100 / (1 + avg_gain / avg_loss)))
 
-    def signal(self):
+    def get_indexes(self):
         buying_indexes, _ = array.intersection(self.data["oversold"], self.data["rsi"])
         _, selling_indexes = array.intersection(self.data["overbought"], self.data["rsi"])
 
-        return self.data["date"].iloc[buying_indexes].reset_index(drop=True), self.data["date"].iloc[
-            selling_indexes
-        ].reset_index(drop=True)
+        return buying_indexes, selling_indexes
+
+    def signal(self):
+        buying_indexes, selling_indexes = self.get_indexes()
+        buying_indexes = buying_indexes[:-1]
+        selling_indexes = selling_indexes[:-1]
+        return self.data["date"].iloc[buying_indexes + 1].reset_index(drop=True), self.data["date"].iloc[  # type: ignore
+            selling_indexes + 1
+        ].reset_index(
+            drop=True
+        )
 
     def get_params(self):
         return {

@@ -1,4 +1,3 @@
-import requests
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackClientError
 
@@ -8,19 +7,6 @@ class Slack(object):
         self.token = token
         self.channel_id = channel_id
         self.slack_file_post_url = slack_file_post_url
-
-    def _notify_with_file(self, message, file_path):
-        files = {"file": open(file_path, "rb")}
-
-        param = {
-            "token": self.token,
-            "channels": self.channel_id,
-            "filename": "filename",
-            "initial_comment": message,
-            "title": "title",
-        }
-
-        requests.post(url=self.slack_file_post_url, params=param, files=files)
 
     def _notify_with_data(self, message, file_uploads_data: list[dict]):
         client = WebClient(token=self.token)
@@ -34,7 +20,6 @@ class Slack(object):
         client = WebClient(token=self.token)
         response = client.chat_postMessage(channel=self.channel_id, text=message)
 
-        print(response.status_code)
         if response.status_code != 200:
             raise SlackClientError
 

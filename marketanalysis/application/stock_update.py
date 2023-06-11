@@ -17,7 +17,7 @@ from marketanalysis.domain.trading_strategies.factory import TradingStrategyClas
 from marketanalysis.infra.slack_notification_repository import (
     SlackNotificationRepository,
 )
-from marketanalysis.settings.constants import RESOURCES_DIR
+from marketanalysis.settings import RESOURCES_DIR
 
 logger = logging.getLogger(__name__)
 

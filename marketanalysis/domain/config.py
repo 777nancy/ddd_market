@@ -5,14 +5,14 @@ from pathlib import Path
 import yaml
 
 from marketanalysis.domain.ticker_symbol import TickerSymbol
-from marketanalysis.settings import constants
+from marketanalysis.settings import CONFIG_DIR
 
 logger = logging.getLogger(__name__)
 
 
 class ParametersManager(object):
     def __init__(self) -> None:
-        param_config_path = Path(constants.CONFIG_DIR, "parameters.yml")
+        param_config_path = Path(CONFIG_DIR, "parameters.yml")
 
         with param_config_path.open() as fin:
             self.param_config = yaml.safe_load(fin)
@@ -57,7 +57,7 @@ class ParametersManager(object):
 
 class TickerSymbolsManager(object):
     def __init__(self) -> None:
-        ticker_config_path = Path(constants.CONFIG_DIR, "ticker_symbols.yml")
+        ticker_config_path = Path(CONFIG_DIR, "ticker_symbols.yml")
 
         with ticker_config_path.open() as fin:
             self.ticker_config = yaml.safe_load(fin)

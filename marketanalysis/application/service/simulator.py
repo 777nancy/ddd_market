@@ -22,6 +22,9 @@ class Simulator(object):
             self.data: pd.DataFrame = data
         elif ticker_symbol and stock_repository:
             self.data = stock_repository.select_to_df(ticker_symbol)
+            indicator.data = self.data
+            indicator.calculate()
+
         else:
             raise
         self.indicator: AbstractIndicator = indicator

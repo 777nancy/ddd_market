@@ -2,13 +2,13 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from marketanalysis.domain.indicators import indicator
+from marketanalysis.domain.indicators.indicator import AbstractIndicator
 from marketanalysis.utils import array
 
 
-class EmaCross(indicator.AbstractIndicator):
+class EmaCross(AbstractIndicator):
     def __init__(self, data, short_period=12, long_period=26):
-        self.data: pd.DataFrame = data
+        self._data: pd.DataFrame = data
         self.short_period = short_period
         self.long_period = long_period
         self.calculate()
@@ -18,6 +18,13 @@ class EmaCross(indicator.AbstractIndicator):
         self.data["short_ema"] = self.data["close"].ewm(span=self.short_period, adjust=False).mean()
         self.data["long_ema"] = self.data["close"].ewm(span=self.long_period, adjust=False).mean()
 
+    def get_indexes(self):
+        buying_indexes, selling_indexes = array.intersection(
+            self.data["long_ema"],
+            self.data["short_ema"],
+        )
+        return buying_indexes, selling_indexes
+
     def signal(self):
         """_summary_
 
@@ -25,12 +32,11 @@ class EmaCross(indicator.AbstractIndicator):
             tuple[ndarray[int], ndarray[int]]: buy, sellのインデックス
         """
 
-        buying_indexes, selling_indexes = array.intersection(
-            self.data["long_ema"],
-            self.data["short_ema"],
-        )
-        return self.data["date"].iloc[buying_indexes].reset_index(drop=True), self.data["date"].iloc[
-            selling_indexes
+        buying_indexes, selling_indexes = self.get_indexes()
+        buying_indexes = buying_indexes[:-1]
+        selling_indexes = selling_indexes[:-1]
+        return self.data["date"].iloc[buying_indexes + 1].reset_index(drop=True), self.data["date"].iloc[
+            selling_indexes + 1
         ].reset_index(drop=True)
 
     def get_params(self):

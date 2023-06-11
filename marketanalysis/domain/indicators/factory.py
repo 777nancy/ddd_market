@@ -2,7 +2,7 @@ import importlib
 import os
 
 from marketanalysis.domain.indicators.indicator import AbstractIndicator
-from marketanalysis.settings import constants
+from marketanalysis.settings import PROJECT_NAME
 
 
 class IndicatorClassFactory(object):
@@ -14,5 +14,5 @@ class IndicatorClassFactory(object):
     @staticmethod
     def _import_path_root():
         abs_path_list = os.path.dirname(__file__).split("/")
-        start_index = abs_path_list.index(constants.PROJECT_NAME)
+        start_index = abs_path_list.index(PROJECT_NAME)
         return ".".join(abs_path_list[start_index:])

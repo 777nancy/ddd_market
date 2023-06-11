@@ -20,7 +20,8 @@ services:
       - 5432
     volumes:
       - ./docker/postgres/pgdata:/var/lib/postgresql
-      - ./init/postres:/docker-entrypoint-initdb.d
+      # - ./init/postgres:/docker-entrypoint-initdb.d
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
+      POSTGRES_DB: market

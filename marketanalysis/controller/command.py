@@ -1,59 +1,48 @@
 import argparse
 import logging
-from logging import INFO, basicConfig
 
 from marketanalysis.application.optimize import Optimize
 from marketanalysis.application.stock_update import StockUpdate
-from marketanalysis.domain.rdb_account import PostgresqlAccount
-from marketanalysis.infra.postgresql import Postgresql
 from marketanalysis.infra.slack_notification_repository import (
     SlackNotificationRepository,
 )
-from marketanalysis.infra.stock_repository import StockRepository
-from marketanalysis.settings.constants import (
-    POSTGRES_DATABASE,
-    POSTGRES_HOST,
-    POSTGRES_PASSWORD,
-    POSTGRES_PORT,
-    POSTGRES_USER,
-)
+from marketanalysis.infra.stock_repository import FileStockRepository
+from marketanalysis.platform.filesystem.filesystem import create_filesystem
+from marketanalysis.utils.log import initialize_logging
 
 logger = logging.getLogger(__name__)
 
 
 def stock_update(args):
+    logger.info("START: stock_update")
     logger.info(f"ticker_symbol: {args.ticker_symbol}")
     usecase = StockUpdate(
-        StockRepository(
-            Postgresql(
-                PostgresqlAccount(POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE)
-            )
-        ),
+        FileStockRepository(create_filesystem()),
         SlackNotificationRepository(),
     )
 
     usecase.execute(args.ticker_symbol)
+    logger.info("END: stock_update")
 
 
 def optimize(args):
+    logger.info("START: optimize")
     logger.info(f"indicator: {args.indicator}")
     logger.info(f"params: {args.param}")
     logger.info(f"optimized_ticker_symbol: {args.optimized_ticker_symbol}")
     logger.info(f"strategy: {args.strategy}")
     logger.info(f"target_ticker_symbol: {args.target_ticker_symbol}")
     usecase = Optimize(
-        StockRepository(
-            Postgresql(
-                PostgresqlAccount(POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DATABASE)
-            )
-        ),
+        FileStockRepository(create_filesystem()),
         SlackNotificationRepository(),
     )
     usecase.execute(args.indicator, args.param, args.optimized_ticker_symbol, args.strategy, args.target_ticker_symbol)
 
+    logger.info("END: optimize")
+
 
 if __name__ == "__main__":
-    basicConfig(level=INFO, format="{asctime} [{levelname:.4}] {name}: {message}", style="{")
+    initialize_logging()
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
     # stock update

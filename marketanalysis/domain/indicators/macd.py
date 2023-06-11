@@ -2,13 +2,13 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from marketanalysis.domain.indicators import indicator
+from marketanalysis.domain.indicators.indicator import AbstractIndicator
 from marketanalysis.utils import array
 
 
-class Macd(indicator.AbstractIndicator):
+class Macd(AbstractIndicator):
     def __init__(self, data, short_period=12, long_period=26, signal_period=9):
-        self.data: pd.DataFrame = data
+        self._data: pd.DataFrame = data
         self.short_period = short_period
         self.long_period = long_period
         self.signal_period = signal_period
@@ -32,13 +32,20 @@ class Macd(indicator.AbstractIndicator):
         # MACDヒストグラムを計算
         self.data["Histogram"] = self.data["MACD"] - self.data["Signal"]
 
-    def signal(self):
+    def get_indexes(self):
         buying_indexes, selling_indexes = array.intersection(
             self.data["MACD"],
             self.data["Signal"],
         )
-        return self.data["date"].iloc[buying_indexes].reset_index(drop=True), self.data["date"].iloc[
-            selling_indexes
+
+        return buying_indexes, selling_indexes
+
+    def signal(self):
+        buying_indexes, selling_indexes = self.get_indexes()
+        buying_indexes = buying_indexes[:-1]
+        selling_indexes = selling_indexes[:-1]
+        return self.data["date"].iloc[buying_indexes + 1].reset_index(drop=True), self.data["date"].iloc[
+            selling_indexes + 1
         ].reset_index(drop=True)
 
     def get_params(self):
